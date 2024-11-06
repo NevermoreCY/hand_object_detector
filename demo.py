@@ -228,6 +228,7 @@ if __name__ == '__main__':
     thresh_hand = args.thresh_hand 
     thresh_obj = args.thresh_obj
     vis = args.vis
+    print("vis is ", vis)
 
     # print(f'thresh_hand = {thresh_hand}')
     # print(f'thnres_obj = {thresh_obj}')
@@ -245,6 +246,8 @@ if __name__ == '__main__':
 
     print('Loaded Photo: {} images.'.format(num_images))
 
+    total_count = 0
+    confidence = []
 
     while (num_images >= 0):
         total_tic = time.time()
@@ -263,7 +266,7 @@ if __name__ == '__main__':
           im_in = cv2.imread(im_file)
         # bgr
         im = im_in
-
+        print("Current img file : ",imglist[num_images])
         blobs, im_scales = _get_image_blob(im)
         assert len(im_scales) == 1, "Only single-image batch implemented"
         im_blob = blobs
@@ -343,6 +346,7 @@ if __name__ == '__main__':
         if vis:
             im2show = np.copy(im)
         obj_dets, hand_dets = None, None
+        has_detect = False
         for j in xrange(1, len(pascal_classes)):
             # inds = torch.nonzero(scores[:,j] > thresh).view(-1)
             if pascal_classes[j] == 'hand':
@@ -352,13 +356,19 @@ if __name__ == '__main__':
 
             # if there is det
             if inds.numel() > 0:
+              has_detect = True
               cls_scores = scores[:,j][inds]
               _, order = torch.sort(cls_scores, 0, True)
               if args.class_agnostic:
                 cls_boxes = pred_boxes[inds, :]
               else:
                 cls_boxes = pred_boxes[inds][:, j * 4:(j + 1) * 4]
-              
+
+              # print("1",cls_boxes.shape)  4
+              # print("2",cls_scores.unsqueeze(1).shape) 1
+              # print("3",contact_indices[inds].shape) 1
+              # print("4",offset_vector.squeeze(0)[inds].shape) 3
+              # print("5",lr[inds].shape) 1
               cls_dets = torch.cat((cls_boxes, cls_scores.unsqueeze(1), contact_indices[inds], offset_vector.squeeze(0)[inds], lr[inds]), 1)
               cls_dets = cls_dets[order]
               keep = nms(cls_boxes[order, :], cls_scores[order], cfg.TEST.NMS)
@@ -367,7 +377,22 @@ if __name__ == '__main__':
                 obj_dets = cls_dets.cpu().numpy()
               if pascal_classes[j] == 'hand':
                 hand_dets = cls_dets.cpu().numpy()
-              
+
+        # print("object detections:", obj_dets)
+        # print("hand_dets:", hand_dets)
+        # print("thresh_hand:", thresh_hand)
+        # print("thresh_obj:", thresh_obj)
+        print(has_detect)
+        if has_detect:
+            print("GG")
+            print(hand_dets)
+            print(hand_dets.shape)
+            print(type(hand_dets))
+            total_count += int(hand_dets.shape[0])
+            for item in hand_dets:
+                print(item[4])
+                confidence.append(item[4])
+
         if vis:
           # visualization
           im2show = vis_detections_filtered_objects_PIL(im2show, obj_dets, hand_dets, thresh_hand, thresh_obj)
@@ -395,7 +420,13 @@ if __name__ == '__main__':
             print('Frame rate:', frame_rate)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
-              
+    if len(confidence) == 0:
+        avg_score = 0
+    else:
+        avg_score = np.mean(confidence)
+
+    print("\n total hand count is :" , int(total_count) )
+    print("average confidence score is :" , avg_score)
     if webcam_num >= 0:
         cap.release()
         cv2.destroyAllWindows()
