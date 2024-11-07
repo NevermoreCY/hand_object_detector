@@ -462,8 +462,8 @@ if __name__ == '__main__':
         print("\n total hand count is :" , int(total_count) )
         print("average confidence score is :" , avg_score)
 
-    filename1 = args.image_dir + '_count.json'
-    filename2 = args.image_dir + "_confidence.json"
+    filename1 = args.image_dir + '_count' + str(args.cur_job)+  '.json'
+    filename2 = args.image_dir + "_confidence"+ str(args.cur_job)+ ".json"
     if not os.path.exists(args.save_dir):
         os.makedirs(args.save_dir)
     # 使用with语句确保文件正确关闭
