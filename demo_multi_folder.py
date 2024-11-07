@@ -260,9 +260,15 @@ if __name__ == '__main__':
 
     total_job = args.total_job
     cur_job = args.cur_job
+
+    job_size = len(folder_list) // total_job
+
     print("Total job: ", total_job)
     print("cur job: ", cur_job)
-    job_size = len(folder_list) // total_job
+    print("job size : ", job_size)
+    print(cur_job * job_size , (cur_job + 1) * job_size)
+
+
 
     cur_folder_list = folder_list[cur_job * job_size : (cur_job + 1) * job_size]
 
