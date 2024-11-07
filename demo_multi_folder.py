@@ -109,6 +109,12 @@ def parse_args():
   parser.add_argument('--thresh_obj', default=0.5,
                       type=float,
                       required=False)
+  parser.add_argument('--total_job', default=10,
+                      type=int,
+                      required=False)
+  parser.add_argument('--cur_job', default=0,
+                      type=int,
+                      required=False)
 
   args = parser.parse_args()
   return args
@@ -252,8 +258,19 @@ if __name__ == '__main__':
     out_dir_count = {}
     out_dir_conf = {}
 
-    for folder_id in tqdm(range(len(folder_list))):
-        folder = folder_list[folder_id]
+    total_job = args.total_job
+    cur_job = args.cur_job
+    print("Total job: ", total_job)
+    print("cur job: ", cur_job)
+    job_size = len(folder_list) // total_job
+
+    cur_folder_list = folder_list[cur_job * job_size : (cur_job + 1) * job_size]
+
+
+
+
+    for folder_id in tqdm(range(len(cur_folder_list))):
+        folder = cur_folder_list[folder_id]
         folder_path = os.path.join(args.image_dir, folder)
         imglist = os.listdir(folder_path)
         num_images = len(imglist)
