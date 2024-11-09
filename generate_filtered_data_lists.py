@@ -81,7 +81,7 @@ for conf_th in conf_thresholds:
                 continue
 
 
-print(out_put)
+print(len(out_put))
 #
 
 with open(out_path, 'w', encoding='utf-8') as file:
