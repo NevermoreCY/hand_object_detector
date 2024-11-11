@@ -32,11 +32,11 @@ for data_dict in content2:
         print("No")
 
 print(len(output))
-
-chdtf_num_55640015262d1311cc0ecde1eaefbdcf_004
+#
+# chdtf_num_55640015262d1311cc0ecde1eaefbdcf_004
 with open(output_path, 'w', encoding='utf-8') as file:
     # 将字典转换为json格式并写入文件
-    json.dump(out_put, file, ensure_ascii=False, indent=4)
+    json.dump(output, file, ensure_ascii=False, indent=4)
 
 
 # tecent 97
